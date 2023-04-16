@@ -1,15 +1,32 @@
 plugins {
-id 'com.moowork.node' version '1.2.0'
+  id "com.github.node-gradle.node" version "3.5.1"
 }
 
-task sayHello {
-doLast {
-println 'Hello, World!'
-}
+node {
+version = "12.18.2"
+  download = true
 }
 
-task anotherTask {
-doLast {
-println 'This is another task'
+task build
+
+task zip(type: Zip) {
+    from ('.') {
+        include "*"
+        include '*/*'
+        include "bin/**"
+        include "data/**"
+        include "node_modules/**"
+        include "public/**"
+        include "routes/**"
+        include "views/**"
+    }
+    destinationDirectory = layout.buildDirectory.dir('dist')
+    archiveFileName = "my-distribution.zip"
 }
-}
+
+build.dependsOn zip
+zip.dependsOn npm_build
+build.dependsOn npm_build
+npm_build.dependsOn npmInstall
+npm_build.dependsOn npm_test
+npm_test.dependsOn npmInstall
